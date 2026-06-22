@@ -38,6 +38,49 @@
         <mxCell id="IHojQ7XYpNSS6AMQONeX-12" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;div&gt;Feedback Ingestion Module&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;/upload&lt;/div&gt;" vertex="1">
           <mxGeometry height="140" width="190" x="360" y="20" as="geometry" />
         </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-18" edge="1" parent="1" source="IHojQ7XYpNSS6AMQONeX-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="380" y="440" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-17" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;div&gt;Raw Feedback&lt;/div&gt;&lt;div&gt;Data&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="120" x="190" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-19" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;div&gt;Column Mapping&lt;/div&gt;&lt;div&gt;Interfaces&lt;/div&gt;" vertex="1">
+          <mxGeometry height="110" width="200" x="380" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-23" edge="1" parent="1" source="IHojQ7XYpNSS6AMQONeX-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="280" y="730" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-26" connectable="0" parent="IHojQ7XYpNSS6AMQONeX-23" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Valid" vertex="1">
+          <mxGeometry relative="1" x="-0.1721" y="5" as="geometry">
+            <mxPoint y="-5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-24" edge="1" parent="1" source="IHojQ7XYpNSS6AMQONeX-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="680" y="730" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-27" connectable="0" parent="IHojQ7XYpNSS6AMQONeX-24" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Invalid" vertex="1">
+          <mxGeometry relative="1" x="-0.3514" y="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-21" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Vallidation Engine" vertex="1">
+          <mxGeometry height="90" width="170" x="410" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-22" edge="1" parent="1" source="IHojQ7XYpNSS6AMQONeX-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.412;entryY=0.022;entryDx=0;entryDy=0;entryPerimeter=0;" target="IHojQ7XYpNSS6AMQONeX-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-25" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Standardized data set" vertex="1">
+          <mxGeometry height="80" width="170" x="200" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-28" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;div&gt;Error Report&amp;nbsp;&lt;/div&gt;&lt;div&gt;+&lt;/div&gt;&lt;div&gt;Feedback to Admin&lt;/div&gt;" vertex="1">
+          <mxGeometry height="80" width="190" x="580" y="730" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
