@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net">
   <diagram name="Page-1" id="SaWFXmU8lvc_WSPBiKv8">
-    <mxGraphModel dx="860" dy="515" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1147" dy="1787" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -80,6 +80,42 @@
         </mxCell>
         <mxCell id="IHojQ7XYpNSS6AMQONeX-28" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;div&gt;Error Report&amp;nbsp;&lt;/div&gt;&lt;div&gt;+&lt;/div&gt;&lt;div&gt;Feedback to Admin&lt;/div&gt;" vertex="1">
           <mxGeometry height="80" width="190" x="580" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-29" parent="1" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" value="" vertex="1">
+          <mxGeometry height="60" width="120" x="940" y="-300" as="geometry" />
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-31" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Standardized records" vertex="1">
+          <mxGeometry height="80" width="210" x="827" as="geometry" />
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-39" edge="1" parent="1" source="IHojQ7XYpNSS6AMQONeX-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="IHojQ7XYpNSS6AMQONeX-33">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-32" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;Handle Missing&amp;nbsp;&lt;/div&gt;&lt;div&gt;Values&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="120" x="880" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-40" edge="1" parent="1" source="IHojQ7XYpNSS6AMQONeX-33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="IHojQ7XYpNSS6AMQONeX-34">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-33" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;Text cleaning&amp;nbsp;&lt;/div&gt;&lt;div&gt;and Normalization&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="120" x="880" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-41" edge="1" parent="1" source="IHojQ7XYpNSS6AMQONeX-34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="IHojQ7XYpNSS6AMQONeX-35">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-34" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Date Formatting" vertex="1">
+          <mxGeometry height="60" width="120" x="880" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-35" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Removing Duplicates" vertex="1">
+          <mxGeometry height="60" width="120" x="881" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-37" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Cleaned Feedback Data" vertex="1">
+          <mxGeometry height="90" width="220" x="840" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-43" edge="1" parent="1" source="IHojQ7XYpNSS6AMQONeX-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.432;entryY=-0.029;entryDx=0;entryDy=0;entryPerimeter=0;" target="IHojQ7XYpNSS6AMQONeX-32">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-44" edge="1" parent="1" source="IHojQ7XYpNSS6AMQONeX-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.462;entryY=0.041;entryDx=0;entryDy=0;entryPerimeter=0;" target="IHojQ7XYpNSS6AMQONeX-37">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
