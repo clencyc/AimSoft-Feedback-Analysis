@@ -4,51 +4,73 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="LJO-jKDFckiUnOejqtBQ-1" edge="1" parent="1" source="Gv2ftgEbfQOVIdoJZ5Fv-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;">
+        <mxCell id="LJO-jKDFckiUnOejqtBQ-15" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="&lt;div&gt;Customer Feedback&amp;nbsp;&lt;/div&gt;&lt;div&gt;Analysis System&lt;/div&gt;" vertex="1">
+          <mxGeometry height="170" width="170" x="331" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="LJO-jKDFckiUnOejqtBQ-16" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="&lt;div&gt;System&amp;nbsp;&lt;/div&gt;&lt;div&gt;admin&lt;/div&gt;" vertex="1">
+          <mxGeometry height="80" width="80" x="372" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="LJO-jKDFckiUnOejqtBQ-18" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.324;entryY=-0.006;entryDx=0;entryDy=0;entryPerimeter=0;" target="LJO-jKDFckiUnOejqtBQ-15">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="385" y="200" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LJO-jKDFckiUnOejqtBQ-20" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.629;entryY=-0.018;entryDx=0;entryDy=0;entryPerimeter=0;" target="LJO-jKDFckiUnOejqtBQ-15">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="340" y="110" />
-              <mxPoint x="340" y="180" />
+              <mxPoint x="437" y="230" />
+              <mxPoint x="437" y="230" />
             </Array>
-            <mxPoint x="380" y="180" as="targetPoint" />
+            <mxPoint x="437" y="200" as="sourcePoint" />
+            <mxPoint x="440" y="269" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="LJO-jKDFckiUnOejqtBQ-2" connectable="0" parent="LJO-jKDFckiUnOejqtBQ-1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="&lt;div&gt;Admin uploads feedback&lt;/div&gt;&lt;div&gt;file&lt;/div&gt;" vertex="1">
-          <mxGeometry relative="1" x="-0.3478" y="4" as="geometry">
-            <mxPoint as="offset" />
-          </mxGeometry>
+        <mxCell id="LJO-jKDFckiUnOejqtBQ-21" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Feedback source config" vertex="1">
+          <mxGeometry height="30" width="60" x="440" y="230" as="geometry" />
         </mxCell>
-        <mxCell id="Gv2ftgEbfQOVIdoJZ5Fv-1" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="Admin" vertex="1">
-          <mxGeometry height="80" width="80" x="70" y="70" as="geometry" />
+        <mxCell id="LJO-jKDFckiUnOejqtBQ-22" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;div&gt;Admin&amp;nbsp;&lt;/div&gt;&lt;div&gt;tasks&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="60" x="331" y="230" as="geometry" />
         </mxCell>
-        <mxCell id="LJO-jKDFckiUnOejqtBQ-7" edge="1" parent="1" source="LJO-jKDFckiUnOejqtBQ-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;">
+        <mxCell id="LJO-jKDFckiUnOejqtBQ-24" edge="1" parent="1" source="LJO-jKDFckiUnOejqtBQ-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="560" y="280" as="targetPoint" />
+            <mxPoint x="330" y="400" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="LJO-jKDFckiUnOejqtBQ-8" connectable="0" parent="LJO-jKDFckiUnOejqtBQ-7" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Data is cleaned" vertex="1">
-          <mxGeometry relative="1" x="-0.3371" y="3" as="geometry">
-            <mxPoint x="22" y="3" as="offset" />
+        <mxCell id="LJO-jKDFckiUnOejqtBQ-23" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="&lt;div&gt;Feedback&amp;nbsp;&lt;/div&gt;&lt;div&gt;Channels&lt;/div&gt;" vertex="1">
+          <mxGeometry height="80" width="80" x="70" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="LJO-jKDFckiUnOejqtBQ-25" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;div&gt;Raw&amp;nbsp;&lt;/div&gt;&lt;div&gt;Feedback data&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="60" x="200" y="366" as="geometry" />
+        </mxCell>
+        <mxCell id="LJO-jKDFckiUnOejqtBQ-26" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="&lt;div&gt;Aimsoft&amp;nbsp;&lt;/div&gt;&lt;div&gt;Mngt and product&amp;nbsp;&lt;/div&gt;&lt;div&gt;teams&lt;/div&gt;" vertex="1">
+          <mxGeometry height="105" width="105" x="365.5" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="LJO-jKDFckiUnOejqtBQ-27" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="360.5" y="500" as="sourcePoint" />
+            <mxPoint x="361" y="610" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="LJO-jKDFckiUnOejqtBQ-3" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="System" vertex="1">
-          <mxGeometry height="90" width="90" x="380" y="120" as="geometry" />
-        </mxCell>
-        <mxCell id="LJO-jKDFckiUnOejqtBQ-10" edge="1" parent="1" source="LJO-jKDFckiUnOejqtBQ-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="LJO-jKDFckiUnOejqtBQ-11">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="410" y="320" as="targetPoint" />
+        <mxCell id="LJO-jKDFckiUnOejqtBQ-28" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="415.5" y="500" as="sourcePoint" />
+            <mxPoint x="416" y="600" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="LJO-jKDFckiUnOejqtBQ-13" connectable="0" parent="LJO-jKDFckiUnOejqtBQ-10" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="&lt;div&gt;Output is&lt;/div&gt;&lt;div&gt;Cleaned Data&lt;/div&gt;" vertex="1">
-          <mxGeometry relative="1" y="1" as="geometry">
-            <mxPoint as="offset" />
+        <mxCell id="LJO-jKDFckiUnOejqtBQ-29" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="477" y="500" as="sourcePoint" />
+            <mxPoint x="477.5" y="610" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="LJO-jKDFckiUnOejqtBQ-9" parent="1" style="whiteSpace=wrap;html=1;aspect=fixed;" value="&lt;div&gt;NLP&amp;nbsp;&lt;/div&gt;&lt;div&gt;Analysis&lt;/div&gt;&lt;div&gt;Engine&lt;/div&gt;" vertex="1">
-          <mxGeometry height="80" width="80" x="520" y="280" as="geometry" />
+        <mxCell id="LJO-jKDFckiUnOejqtBQ-30" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Trend Support" vertex="1">
+          <mxGeometry height="30" width="60" x="470.5" y="525" as="geometry" />
         </mxCell>
-        <mxCell id="LJO-jKDFckiUnOejqtBQ-11" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;Interactive&amp;nbsp;&lt;/div&gt;&lt;div&gt;dashboard and reports(analytics)&lt;/div&gt;" vertex="1">
-          <mxGeometry height="60" width="120" x="240" y="370" as="geometry" />
+        <mxCell id="LJO-jKDFckiUnOejqtBQ-31" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;div&gt;Sentiment&amp;nbsp;&lt;/div&gt;&lt;div&gt;Analysis&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="60" x="305.5" y="530" as="geometry" />
+        </mxCell>
+        <mxCell id="LJO-jKDFckiUnOejqtBQ-32" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Category trends" vertex="1">
+          <mxGeometry height="20" width="40" x="396" y="530" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
