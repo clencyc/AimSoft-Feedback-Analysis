@@ -1,9 +1,43 @@
 <mxfile host="app.diagrams.net">
   <diagram name="Page-1" id="SaWFXmU8lvc_WSPBiKv8">
-    <mxGraphModel>
+    <mxGraphModel dx="860" dy="515" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-4" edge="1" parent="1" source="IHojQ7XYpNSS6AMQONeX-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="360" y="100" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="System Admin" vertex="1">
+          <mxGeometry height="60" width="120" x="100" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-9" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="465" y="160" />
+            </Array>
+            <mxPoint x="460" y="160" as="sourcePoint" />
+            <mxPoint x="465" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-13" connectable="0" parent="IHojQ7XYpNSS6AMQONeX-9" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Raw Data" vertex="1">
+          <mxGeometry relative="1" x="-0.184" y="-2" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-8" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;div&gt;Raw&amp;nbsp;&lt;/div&gt;&lt;div&gt;Feedback&amp;nbsp;&lt;/div&gt;&lt;div&gt;Files&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="60" x="280" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-10" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Raw Data Storage" vertex="1">
+          <mxGeometry height="60" width="120" x="410" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-11" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="data ingested from channels like whatsapp, SMS, Email, Web surveys and Notes&amp;nbsp;" vertex="1">
+          <mxGeometry height="60" width="140" x="90" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="IHojQ7XYpNSS6AMQONeX-12" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;div&gt;Feedback Ingestion Module&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;/upload&lt;/div&gt;" vertex="1">
+          <mxGeometry height="140" width="190" x="360" y="20" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
