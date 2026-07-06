@@ -1,0 +1,57 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-aimsoft}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aimsoft_dev_only}
+      POSTGRES_DB: ${POSTGRES_DB:-aimsoft_feedback}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"   # 5433 so it never collides with a local Postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aimsoft -d aimsoft_feedback"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: ./backend
+    env_file: .env
+    volumes:
+      - ./backend:/app    # bind mount = live reload, no rebuilds
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+
+  dashboard:
+    build: ./dashboard
+    env_file: .env
+    volumes:
+      - ./dashboard:/app
+    ports:
+      - "8501:8501"
+    depends_on:
+      - backend
+    environment:
+      BACKEND_API_URL: http://backend:8000/api
+
+volumes:
+  pgdata:
