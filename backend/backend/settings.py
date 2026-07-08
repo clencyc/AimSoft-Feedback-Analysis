@@ -25,7 +25,10 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-!@#%$^&*()_+12
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DEBUG", True))
 
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1").split(",")
+ALLOWED_HOSTS = os.environ.get(
+    "DJANGO_ALLOWED_HOSTS",
+    "localhost,127.0.0.1,[::1]",
+    ).split(",")
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -48,6 +51,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',
     'users',
     'feedback'
 ]
