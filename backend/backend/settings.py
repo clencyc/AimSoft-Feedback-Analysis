@@ -27,7 +27,7 @@ DEBUG = bool(os.environ.get("DEBUG", True))
 
 ALLOWED_HOSTS = os.environ.get(
     "DJANGO_ALLOWED_HOSTS",
-    "localhost,127.0.0.1,[::1]",
+    "localhost,127.0.0.1,[::1],backend",
     ).split(",")
 
 AUTH_USER_MODEL = 'users.User'
@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
+    'rest_framework.authtoken',
     'users',
     'feedback'
 ]
