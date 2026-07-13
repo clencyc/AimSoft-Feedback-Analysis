@@ -1,5 +1,6 @@
-from django.urls import path, include
+from django.urls import path
+from . import views
 
 urlpatterns = [
-    # path('feedback/', include('feedback.urls'))
+    path('', views.feedback_create, name='feedback-create'),   # Simple function view
 ]
