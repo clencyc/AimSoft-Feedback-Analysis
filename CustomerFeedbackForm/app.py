@@ -37,7 +37,7 @@ def main():
 
         if recommend_others is not None:
             st.success(f"Selected NPS: **{recommend_others}**")
-        st.caption("0 = Not likely at all                              10 = Extremely likely")
+        st.caption("0 = Not likely at all               10 = Extremely likely")
 
         st.divider()
 
@@ -63,7 +63,7 @@ def main():
                         st.session_state[f"rating_{aspect}"] = i
             
             ratings[aspect.lower().replace(" ", "_")] = current_value
-            st.caption("1 = Poor                               5 = Excellent")
+            st.caption("1 = Poor                5 = Excellent")
             st.divider()
 
         # Open-ended questions - Fixed with proper labels
