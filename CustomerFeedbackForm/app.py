@@ -1,130 +1,129 @@
 import streamlit as st
 import requests
+import os
+
+BACKEND = os.getenv('BACKEND_API_URL', 'http://localhost:8000').rstrip('/')
+
+
+def validate_token(token: str):
+    try:
+        resp = requests.get(f"{BACKEND}/api/public/feedback/{token}/", timeout=8)
+        return resp
+    except Exception:
+        return None
+
+
+def submit_feedback(token: str, payload: dict):
+    try:
+        resp = requests.post(f"{BACKEND}/api/public/feedback/{token}/submit/", json=payload, timeout=8)
+        return resp
+    except Exception:
+        return None
+
 
 def main():
     st.set_page_config(page_title="Share Your Feedback", layout="centered")
-    
+
     st.title("Share your feedback")
     st.caption("Takes about 2 minutes. We truly appreciate your input at AimSoft!")
 
+    query = st.query_params
+    # query params values can be lists; accept either ['token']=['...'] or ['token']='...'
+    raw_token = query.get('token') or query.get('t')
+    if isinstance(raw_token, list):
+        token = raw_token[0] if raw_token else None
+    else:
+        token = raw_token
+
+    # st.write("query:", query)
+    # st.write("resolved token:", token)
+
+    if not token:
+        st.error("This feedback page requires a token in the URL. Please use the shared link.")
+        return
+
+    resp = validate_token(token)
+    if resp is None:
+        st.error("Could not validate link — please try again later.")
+        return
+    if resp.status_code == 404:
+        st.error("Feedback link not found.")
+        return
+    if resp.status_code == 410:
+        st.error("This feedback link has expired or been revoked.")
+        return
+    if not resp.ok:
+        st.error("Invalid feedback link.")
+        return
+
+    data = resp.json()
+    rating_dimensions = data.get('rating_dimensions') or []
+
+    st.caption("Anonymous · about 2 minutes")
+  
+    # CSAT: 0-4 where 0=Very Dissatisfied ... 4=Very Satisfied
+    if 'csat_score' not in st.session_state:
+        st.session_state.csat_score = None
+    if 'nps_score' not in st.session_state:
+        st.session_state.nps_score = None
+    if 'dimension_ratings' not in st.session_state:
+        st.session_state.dimension_ratings = {}
+
     with st.form(key='feedback_form'):
-        
-        # CSAT
-        st.subheader("Overall, how satisfied are you? (CSAT)")
-        satisfaction_level = st.radio(
-            label="CSAT Rating",
-            options=[1, 2, 3, 4, 5],
-            format_func=lambda x: ["😡 Very Dissatisfied", "🙁 Dissatisfied", "😐 Neutral", "🙂 Satisfied", "😊 Very Satisfied"][x-1],
-            horizontal=True,
-            label_visibility="collapsed"
-        )
+        st.markdown("#### Overall satisfaction")
+        csat_options = [0, 1, 2, 3, 4]
+        csat_emojis = ["😞", "🙁", "😐", "🙂", "😊"]
+        csat_choice = st.radio("", options=csat_options, format_func=lambda x: csat_emojis[x], horizontal=True, key='csat_radio')
+        st.session_state.csat_score = csat_choice
 
-        # NPS
-        st.subheader("How likely are you to recommend us to a friend or colleague? (NPS)")
-        nps_cols = st.columns(11)
-        recommend_others = st.session_state.get('nps_score', None)
-        
-        for i in range(11):
-            with nps_cols[i]:
-                if st.form_submit_button(
-                    label=str(i),
-                    key=f"nps_btn_{i}",
-                    use_container_width=True,
-                    help=f"Score {i}"
-                ):
-                    recommend_others = i
-                    st.session_state.nps_score = i
+        st.markdown("#### Net Promoter Score (NPS)")
+        nps_choice = st.slider("How likely are you to recommend?", min_value=0, max_value=10, value=0, key='nps_slider')
+        st.session_state.nps_score = nps_choice
+        st.caption("0 = Not at all likely   10 = Extremely likely")
 
-        if recommend_others is not None:
-            st.success(f"Selected NPS: **{recommend_others}**")
-        st.caption("0 = Not likely at all               10 = Extremely likely")
+        # Dimension ratings
+        st.markdown("#### Please rate the following aspects (optional)")
+        for dim in rating_dimensions:
+            st.write(f"**{dim}**")
+            val = st.selectbox("", options=["Skip",1,2,3,4,5], index=0, key=f'dim_select_{dim}')
+            if val != "Skip":
+                st.session_state.dimension_ratings[dim] = int(val)
+            elif dim in st.session_state.dimension_ratings:
+                st.session_state.dimension_ratings.pop(dim, None)
+            st.caption("1 = Poor 5 = Excellent")
 
-        st.divider()
+        like_most = st.text_area("What do you like most about our product/service?", placeholder="Tell us what you loved...", height=100)
+        improve = st.text_area("What can we improve?", placeholder="What disappointed you? Any suggestions for the future?", height=120)
+        additional_comments = st.text_area("Any additional comments or suggestions?", placeholder="Optional...", height=100, max_chars=200)
 
-        # Aspect Ratings
-        st.subheader("Please rate the following aspects of our products/services:")
-        aspects = ["Product Quality", "Ease of Use", "Customer Support", "Value for Money", "Delivery Speed"]
-        ratings = {}
-
-        for aspect in aspects:
-            st.write(f"**{aspect}**")
-            cols = st.columns(5)
-            current_value = st.session_state.get(f"rating_{aspect}", 3)
-            
-            for i in range(1, 6):
-                with cols[i-1]:
-                    if st.form_submit_button(
-                        label=str(i),
-                        key=f"{aspect}_{i}",
-                        use_container_width=True,
-                        help=f"Rate {i}/5"
-                    ):
-                        current_value = i
-                        st.session_state[f"rating_{aspect}"] = i
-            
-            ratings[aspect.lower().replace(" ", "_")] = current_value
-            st.caption("1 = Poor                5 = Excellent")
-            st.divider()
-
-        # Open-ended questions - Fixed with proper labels
-        product_service = st.text_area(
-            label="What do you like most about our product/service?",
-            placeholder="Tell us what you loved...",
-            height=100,
-            key="like_most",
-            label_visibility="collapsed"
-        )
-
-        product_improvement = st.text_area(
-            label="What can we improve?",
-            placeholder="What disappointed you? Any suggestions for the future?",
-            height=120,
-            key="improve",
-            label_visibility="collapsed"
-        )
-
-        additional_comments = st.text_area(
-            label="Any additional comments or suggestions?",
-            placeholder="Optional...",
-            height=100,
-            key="additional",
-            label_visibility="collapsed"
-        )
-
-        # Main Submit Button
-        submit = st.form_submit_button("Submit Feedback", type="primary", use_container_width=True)
+        # Disable submit until CSAT and NPS present
+        submit_disabled = st.session_state.get('csat_score') is None or st.session_state.get('nps_score') is None
+        submit = st.form_submit_button("Submit Feedback", disabled=submit_disabled)
 
     if submit:
-        if recommend_others is None:
-            st.error("Please select a product satisfaction score.")
+        payload = {
+            "csat_score": st.session_state.csat_score,
+            "nps_score": st.session_state.nps_score,
+            "dimension_ratings": st.session_state.dimension_ratings or None,
+            "like_most": like_most,
+            "improve": improve,
+            "additional_comments": additional_comments,
+        }
+        submit_resp = submit_feedback(token, payload)
+        if submit_resp is not None and submit_resp.status_code in (200, 201):
+            st.success("Thanks — your feedback has been recorded.")
+            st.balloons()
+            # clear selections
+            st.session_state.csat_score = None
+            st.session_state.nps_score = None
+            st.session_state.dimension_ratings = {}
+        elif submit_resp is not None and submit_resp.status_code == 400:
+            st.error(submit_resp.json().get('detail', 'Bad request'))
+        elif submit_resp is not None and submit_resp.status_code == 410:
+            st.error("This feedback link has expired or been revoked.")
         else:
-            data = {
-                "satisfaction_level": satisfaction_level,
-                "recommend_others": recommend_others,
-                **ratings,
-                "product_service": product_service,
-                "product_improvement": product_improvement,
-                "additional_comments": additional_comments,
-            }
+            st.error("Failed to submit feedback — try again later.")
 
-            try:
-                response = requests.post(
-                    "http://localhost:8000/feedback/", 
-                    json=data,
-                    headers={'Content-Type': 'application/json'}
-                )
-                
-                if response.status_code in [201, 200]:
-                    st.success("Thank you for your feedback!")
-                    st.balloons()
-                    # Clear session state
-                    for key in list(st.session_state.keys()):
-                        if key.startswith("rating_") or key == "nps_score":
-                            del st.session_state[key]
-                else:
-                    st.error("Failed to submit feedback.")
-            except:
-                st.error("Could not connect to the server. Please try again.")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
