@@ -10,10 +10,11 @@ def backend_base_url() -> str:
 
 
 def api_url(path: str) -> str:
-	return f"{backend_base_url()}/{path.lstrip('/')}"
+	return f"{backend_base_url()}/{path.lstrip('/') }"
 
 
 def auth_headers() -> dict[str, str]:
+	"""Return Authorization headers using the stored access_token (Bearer)."""
 	token = st.session_state.get("access_token")
 	if not token:
 		return {}
@@ -34,13 +35,39 @@ def get_json(path: str, params: dict[str, Any] | None = None, use_auth: bool = T
 	return requests.get(api_url(path), params=params, headers=headers, timeout=15)
 
 
+# Feedback-link specific helpers
+def create_feedback_link(org_id: int, payload: dict[str, Any]):
+	"""Admin: create a new feedback link for organization (requires auth)."""
+	return post_json(f"api/admin/organizations/{org_id}/feedback-links/", payload, use_auth=True)
+
+
+def list_feedback_links(org_id: int):
+	return get_json(f"api/admin/organizations/{org_id}/feedback-links/", use_auth=True)
+
+
+def revoke_feedback_link(link_id: int):
+	return post_json(f"api/admin/feedback-links/{link_id}/revoke/", {}, use_auth=True)
+
+
+def list_organizations():
+	return get_json("api/admin/organizations/", use_auth=True)
+
+
+# Public endpoints helpers
+def public_validate_token(token: str):
+	return get_json(f"api/public/feedback/{token}/", use_auth=False)
+
+
+def public_submit_feedback(token: str, payload: dict[str, Any]):
+	return post_json(f"api/public/feedback/{token}/submit/", payload, use_auth=False)
+
+
 def login_user(username: str, password: str):
-	return post_json("users/login/", {"username": username, "password": password})
+	return post_json("api/users/login/", {"username": username, "password": password})
 
 
 def create_user(payload: dict[str, Any]):
-	return post_json("users/create/", payload, use_auth=True)
-
+	return post_json("api/users/create/", payload, use_auth=True)
 
 def logout_user():
 	refresh = st.session_state.get("refresh_token")
