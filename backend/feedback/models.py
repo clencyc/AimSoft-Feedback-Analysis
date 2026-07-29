@@ -1,8 +1,68 @@
 from django.db import models
+from django.conf import settings
+from django.utils import timezone
+import secrets
 
-# feedback forms
+
+class Organization(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+
+class FeedbackLink(models.Model):
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.CASCADE,
+        related_name='feedback_links',
+    )
+    token = models.CharField(max_length=128, unique=True, db_index=True)
+    label = models.CharField(max_length=255, blank=True, null=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    max_submissions = models.IntegerField(null=True, blank=True)
+    submission_count = models.IntegerField(default=0)
+    rating_dimensions = models.JSONField(default=list, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.token:
+            # generate a reasonably long, URL-safe token
+            self.token = secrets.token_urlsafe(32)
+        # Ensure a default set of dimensions when empty
+        if not self.rating_dimensions:
+            self.rating_dimensions = ["Customer support", "Value for money", "Response speed"]
+        super().save(*args, **kwargs)
+
+    def is_valid(self):
+        if not self.is_active:
+            return False
+        if self.expires_at and timezone.now() > self.expires_at:
+            return False
+        if self.max_submissions is not None and self.submission_count >= self.max_submissions:
+            return False
+        return True
+
+    def __str__(self):
+        return f"Link {self.label or self.token} -> {self.organization}"
+
+
 class Customer_feedback(models.Model):
     form_id = models.AutoField(primary_key=True)
+
+    # New standardized fields
+    csat_score = models.PositiveSmallIntegerField(null=True, blank=True)  # 0-4
+    nps_score = models.PositiveSmallIntegerField(null=True, blank=True)   # 0-10
+    dimension_ratings = models.JSONField(null=True, blank=True)
+
+    like_most = models.TextField(max_length=500, null=True, blank=True)
+    improve = models.TextField(max_length=500, null=True, blank=True)
+    additional_comments = models.CharField(max_length=200, null=True, blank=True)
+
+    # Legacy numeric fields for compatibility (kept but optional)
     satisfaction_level = models.IntegerField(null=True, blank=True)
     recommend_others = models.IntegerField(null=True, blank=True)
 
@@ -15,7 +75,11 @@ class Customer_feedback(models.Model):
     # characters
     product_service = models.CharField(max_length=255, null=True, blank=True)
     product_improvement = models.CharField(max_length=255, null=True, blank=True)
-    additional_comments = models.CharField(max_length=255, null=True, blank=True)
+
+    # New fields
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='feedbacks')
+    submitted_via_link = models.ForeignKey(FeedbackLink, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Feedback Form {self.form_id}"
+        return f"Feedback Form {self.form_id} (org={self.organization})"

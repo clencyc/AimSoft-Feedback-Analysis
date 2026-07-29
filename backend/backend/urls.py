@@ -19,6 +19,8 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('users/', include('users.urls')),
-    path('feedback/', include('feedback.urls'))
+    path('api/users/', include('users.urls')),
+    # Expose the feedback app under /api/ so admin and public routes match spec
+    path('api/', include('feedback.urls')),
 ]
+
