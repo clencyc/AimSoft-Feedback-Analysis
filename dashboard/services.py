@@ -53,6 +53,33 @@ def list_organizations():
 	return get_json("api/admin/organizations/", use_auth=True)
 
 
+# Form builder helpers (admin/dashboard)
+def list_form_questions(org_id: int):
+	return get_json(f"api/admin/organizations/{org_id}/form-questions/", use_auth=True)
+
+
+def create_form_question(org_id: int, payload: dict[str, Any]):
+	return post_json(f"api/admin/organizations/{org_id}/form-questions/", payload, use_auth=True)
+
+
+def delete_form_question(org_id: int, question_id: int):
+	# org_id present for UX parity but endpoint ignores it; keep for future checks
+	return requests.delete(api_url(f"/api/admin/form-questions/{question_id}/"), headers={**auth_headers(), "Content-Type": "application/json"}, timeout=15)
+
+
+def reorder_form_questions(org_id: int, order_list: list[int]):
+	return post_json(f"api/admin/organizations/{org_id}/form-questions/reorder/", {"order": order_list}, use_auth=True)
+
+
+def update_form_question(question_id: int, payload: dict[str, Any]):
+	"""Update a single form question (admin).
+	Uses PUT on /api/admin/form-questions/{id}/
+	"""
+	h = {"Content-Type": "application/json"}
+	h.update(auth_headers())
+	return requests.put(api_url(f"/api/admin/form-questions/{question_id}/"), json=payload, headers=h, timeout=15)
+
+
 # Public endpoints helpers
 def public_validate_token(token: str):
 	return get_json(f"api/public/feedback/{token}/", use_auth=False)
