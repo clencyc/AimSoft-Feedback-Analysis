@@ -9,7 +9,8 @@ class AdminCustomerSerializer(serializers.ModelSerializer):
 
 
 class PublicCustomerSerializer(serializers.ModelSerializer):
-    # Public form must not accept organization or submitted_via_link
+    # Accept either a legacy flat payload or the new {"answers": {...}} shape
+    answers = serializers.DictField(child=serializers.JSONField(), required=False)
     dimension_ratings = serializers.DictField(child=serializers.IntegerField(), required=False, allow_null=True)
 
     class Meta:
@@ -21,15 +22,16 @@ class PublicCustomerSerializer(serializers.ModelSerializer):
             'like_most',
             'improve',
             'additional_comments',
+            'answers',
         ]
 
     def validate(self, data):
-        # ensure required fields present
-        if 'csat_score' not in data:
-            raise serializers.ValidationError({'csat_score': 'csat_score is required'})
-        if 'nps_score' not in data:
-            raise serializers.ValidationError({'nps_score': 'nps_score is required'})
-        # delegate to field validators
+        # If answers present, defer per-question validation to the view (schema-aware).
+        answers = data.get('answers')
+        if answers:
+            return data
+
+        # Legacy path: require csat and nps if not using answers
         csat = data.get('csat_score')
         nps = data.get('nps_score')
         if csat is None or not (0 <= csat <= 4):
@@ -42,20 +44,6 @@ class PublicCustomerSerializer(serializers.ModelSerializer):
         if value is None:
             return value
         allowed = self.context.get('allowed_dimensions') or []
-        # ensure keys are subset of allowed
-        for k in value.keys():
-            if k not in allowed:
-                raise serializers.ValidationError(f'Unknown dimension: {k}')
-            v = value[k]
-            if not isinstance(v, int) or not (1 <= v <= 5):
-                raise serializers.ValidationError(f'Rating for {k} must be integer 1-5')
-        return value
-
-    def validate_dimension_ratings(self, value):
-        if value is None:
-            return value
-        allowed = self.context.get('allowed_dimensions') or []
-        # ensure keys are subset of allowed
         for k in value.keys():
             if k not in allowed:
                 raise serializers.ValidationError(f'Unknown dimension: {k}')
@@ -94,3 +82,21 @@ class FeedbackLinkSerializer(serializers.ModelSerializer):
         model = FeedbackLink
         fields = ['id', 'organization', 'token', 'label', 'is_active', 'expires_at', 'max_submissions', 'submission_count', 'rating_dimensions', 'created_at']
         read_only_fields = ('id', 'token', 'submission_count', 'created_at')
+
+
+class FormQuestionSerializer(serializers.ModelSerializer):
+    organization = serializers.PrimaryKeyRelatedField(queryset=Organization.objects.all())
+    options = serializers.JSONField(required=False, allow_null=True)
+
+    class Meta:
+        model = None  # set below to avoid NameError during import
+        fields = ['id', 'organization', 'label', 'help_text', 'question_type', 'options', 'required', 'order', 'created_at']
+        read_only_fields = ('id', 'created_at')
+
+# Lazy-bind model to avoid ordering/import issues
+try:
+    from .models import FormQuestion
+    FormQuestionSerializer.Meta.model = FormQuestion
+except Exception:
+    # during some import orders FormQuestion may not yet be available; it's fine
+    FormQuestionSerializer.Meta.model = None

@@ -13,4 +13,10 @@ urlpatterns = [
     # Public endpoints
     path('public/feedback/<str:token>/', views.public_validate_token, name='public-validate-token'),
     path('public/feedback/<str:token>/submit/', views.public_submit_feedback, name='public-submit-feedback'),
+
+    # Admin form-builder endpoints
+    path('admin/organizations/<int:org_id>/form-questions/', views.admin_list_create_form_questions, name='admin-org-form-questions'),
+    path('admin/organizations/<int:org_id>/form-questions/reorder/', views.admin_reorder_form_questions, name='admin-org-form-questions-reorder'),
+    path('admin/form-questions/<int:question_id>/', views.admin_update_delete_form_question, name='admin-form-question-detail'),
 ]
+

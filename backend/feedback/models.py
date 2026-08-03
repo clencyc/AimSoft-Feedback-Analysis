@@ -50,12 +50,54 @@ class FeedbackLink(models.Model):
         return f"Link {self.label or self.token} -> {self.organization}"
 
 
+class FormQuestion(models.Model):
+    """Organization-scoped, ordered question that defines the public form schema.
+
+    question_type: one of csat,nps,rating_scale,single_choice,multi_choice,yes_no,short_text,long_text
+    options: JSON blob for question-specific options, e.g. {"choices": [...]} or {"max": 5}
+    order: integer for display ordering
+    """
+    QUESTION_TYPES = [
+        ("csat", "CSAT"),
+        ("nps", "NPS"),
+        ("rating_scale", "Rating scale"),
+        ("single_choice", "Single choice"),
+        ("multi_choice", "Multiple choice"),
+        ("yes_no", "Yes / No"),
+        ("short_text", "Short text"),
+        ("long_text", "Long text"),
+    ]
+
+    organization = models.ForeignKey(
+        Organization, on_delete=models.CASCADE, related_name='form_questions'
+    )
+    label = models.CharField(max_length=255)
+    help_text = models.CharField(max_length=512, null=True, blank=True)
+    question_type = models.CharField(max_length=32, choices=QUESTION_TYPES)
+    options = models.JSONField(default=dict, blank=True)
+    required = models.BooleanField(default=False)
+    order = models.IntegerField(default=0)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["order", "created_at"]
+
+    def __str__(self):
+        return f"Q[{self.id}] {self.label} ({self.question_type})"
+
+
 class Customer_feedback(models.Model):
     form_id = models.AutoField(primary_key=True)
 
-    # New standardized fields
+    # New standardized fields for quick filtering/compat
     csat_score = models.PositiveSmallIntegerField(null=True, blank=True)  # 0-4
     nps_score = models.PositiveSmallIntegerField(null=True, blank=True)   # 0-10
+
+    # Full submission stored as JSON keyed by question id: {"<question_id>": {"value": ...}}
+    responses = models.JSONField(null=True, blank=True)
+
+    # Legacy convenience fields kept for compatibility with analytics code
     dimension_ratings = models.JSONField(null=True, blank=True)
 
     like_most = models.TextField(max_length=500, null=True, blank=True)
