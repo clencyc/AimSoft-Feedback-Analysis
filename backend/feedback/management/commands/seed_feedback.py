@@ -1,7 +1,7 @@
 # backend/feedback/management/commands/seed_feedback.py
 import random
 from django.core.management.base import BaseCommand
-from feedback.models import Customer_feedback
+from feedback.models import Customer_feedback, Organization
 
 class Command(BaseCommand):
     help = "Seeds the database with various customer feedback records"
@@ -29,6 +29,7 @@ class Command(BaseCommand):
         for _ in range(total_records):
             # Pick standard 1-5 rating values randomly
             entry = Customer_feedback(
+                organization=Organization.objects.order_by('?').first(),  # Random organization
                 satisfaction_level=random.randint(1, 5),
                 recommend_others=random.randint(1, 5),
                 product_quality=random.randint(1, 5),
