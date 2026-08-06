@@ -6,3 +6,26 @@ __pycache__/
 *.pyc
 *.pdf
 experiment.ipynb
+<<<<<<< HEAD
+=======
+*.pt
+*.safetensors
+*.bin
+>>>>>>> sentiment-clean
+
+*.pt
+*.safetensors
+*.bin
+*.onnx
+*.h5
+*.pkl
+
+sentiment_model/
+*.safetensors
+*.pt
+*.bin
+
+sentiment_model/
+*.safetensors
+*.pt
+*.bin
