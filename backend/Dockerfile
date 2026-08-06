@@ -21,6 +21,11 @@ COPY requirements.txt /app/
 
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Pre-download transformers model into the build image so it's available
+# in the final image layer. This ensures the model isn't downloaded at
+# first runtime and each Gunicorn worker can load it from local storage.
+RUN python -c "from transformers import pipeline; pipeline('sentiment-analysis', model='distilbert-base-uncased-finetuned-sst-2-english')"
+
 # stage 2: Production stage
 
 FROM python:3.13-slim

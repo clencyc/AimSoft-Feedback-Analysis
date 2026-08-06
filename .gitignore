@@ -1,3 +1,8 @@
 /venv
 .env
 sentiment_model/
+bert-phishing-classifier_teacher/
+__pycache__/
+*.pyc
+*.pdf
+experiment.ipynb

@@ -29,9 +29,9 @@ st.header("Feedback Form Builder")
 
 
 def load_summary():
-	"""Pulls from the real summary endpoint if it exists yet; otherwise
-	returns representative sample data so the dashboard is presentable
-	before that endpoint is wired up."""
+	"""Pulls from the real summary endpoint if it exists. Returns (data, True) on success,
+	or (None, False) if the backend isn't reachable. This avoids showing fabricated sample
+	data in the management dashboard."""
 	try:
 		resp = services.get_json("feedback/summary/")
 		if resp.ok:
@@ -39,20 +39,16 @@ def load_summary():
 	except Exception:
 		pass
 
-	random.seed(7)  # stable sample data across reruns
-	weeks = [date.today() - timedelta(weeks=i) for i in range(7, -1, -1)]
-	trend = [round(random.uniform(3.4, 4.6), 2) for _ in weeks]
-	sample = {
-		"avg_satisfaction": round(sum(trend) / len(trend), 2),
-		"nps": 42,
-		"total_responses": 318,
-		"trend": {"week": [w.strftime("%b %d") for w in weeks], "satisfaction": trend},
-		"sentiment": {"Positive": 61, "Neutral": 24, "Negative": 15},
-	}
-	return sample, False
+	# Do not return sample/dummy data — signal missing live data
+	return None, False
 
 
 data, is_live = load_summary()
+
+if not data:
+	st.warning("Live summary not available — connect the backend 'feedback/summary/' endpoint to view metrics.")
+	st.info("No metrics to display until backend summary is reachable.")
+	st.stop()
 
 # if not is_live:
 # 	st.caption("Sample data shown — connect `feedback/summary/` for live figures.")

@@ -2,15 +2,15 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-aimsoft}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aimsoft_dev_only}
-      POSTGRES_DB: ${POSTGRES_DB:-aimsoft_feedback}
+      POSTGRES_USER: ${POSTGRES_USER:-feedback_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-feedback_password}
+      POSTGRES_DB: ${POSTGRES_DB:-feedback_analysis}
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - "5433:5432"   # 5433 so it never collides with a local Postgres
+      - "5433:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U aimsoft -d aimsoft_feedback"]
+      test: ["CMD-SHELL", "pg_isready -U feedback_user -d feedback_analysis"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -27,9 +27,15 @@ services:
 
   backend:
     build: ./backend
+    environment:
+      DATABASE_NAME: ${POSTGRES_DB:-feedback_analysis}
+      DATABASE_USERNAME: ${POSTGRES_USER:-feedback_user}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-feedback_password}
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
     env_file: .env
     volumes:
-      - ./backend:/app    # bind mount = live reload, no rebuilds
+      - ./backend:/app    
     ports:
       - "8000:8000"
     depends_on:
