@@ -122,13 +122,20 @@ def current_role() -> str:
 def require_role(*allowed_roles: str):
 	"""Guard for the top of each dashboard page. Stops rendering if unauthorized.
 
-	This is a defensive check in addition to app.py only listing the pages a
-	user is allowed to reach — it protects against someone landing on a page
-	directly (e.g. a stale browser tab) after their session/role changes.
+	Role comparison is made case-insensitively and normalizes spaces/underscores so
+	roles like 'SupportTeam', 'Support Team' or 'support' are considered equivalent
+	when applicable.
 	"""
 	if not is_authenticated():
 		st.error("Please log in to view this page.")
 		st.stop()
-	if current_role() not in allowed_roles:
+	role = current_role() or ""
+	def norm(s: str) -> str:
+		return "".join(c.lower() for c in s if c.isalnum())
+	role_norm = norm(role)
+	allowed_norms = [norm(a) for a in allowed_roles]
+
+	# Accept when any allowed role is a substring of the actual role or vice versa
+	if not any((a in role_norm) or (role_norm in a) for a in allowed_norms):
 		st.error("You don't have access to this dashboard.")
 		st.stop()
