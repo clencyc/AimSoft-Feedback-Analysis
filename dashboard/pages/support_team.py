@@ -4,7 +4,9 @@ from datetime import date, timedelta
 import pandas as pd
 import streamlit as st
 
-from services import get_json, require_role, list_organizations
+import services
+
+require_role = services.require_role
 
 require_role("support")
 
@@ -24,7 +26,7 @@ def load_feedback_list(org_id=None, channel=None, sentiment=None):
 		params["sentiment"] = sentiment
 
 	try:
-		resp = get_json("feedback/list/", params=params)
+		resp = services.get_json("feedback/list/", params=params)
 		if resp.ok:
 			return resp.json(), True
 	except Exception:
@@ -72,8 +74,8 @@ def acknowledge_feedback(feedback_id):
 	"""Marks a feedback item as acknowledged. Falls back to local session
 	state if the backend endpoint isn't wired up yet."""
 	try:
-		resp = get_json(f"feedback/{feedback_id}/acknowledge/", method="POST")
-		if resp.ok:
+		resp = services.post_json(f"api/feedback/{feedback_id}/acknowledge/", {}, use_auth=True)
+		if resp is not None and getattr(resp, 'ok', False):
 			return True
 	except Exception:
 		pass
@@ -84,9 +86,9 @@ def acknowledge_feedback(feedback_id):
 
 
 # --- Filters ---
-orgs_resp = list_organizations()
+orgs_resp = services.list_organizations()
 org_options = {}
-if orgs_resp is not None and orgs_resp.ok:
+if orgs_resp is not None and getattr(orgs_resp, 'ok', False):
 	orgs = orgs_resp.json()
 	org_options = {o["name"]: o["id"] for o in orgs}
 
