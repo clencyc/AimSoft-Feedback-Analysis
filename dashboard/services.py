@@ -18,6 +18,7 @@ def auth_headers() -> dict[str, str]:
 	token = st.session_state.get("access_token")
 	if not token:
 		return {}
+	# send the real bearer token to authenticate admin API calls
 	return {"Authorization": f"Bearer {token}"}
 
 
