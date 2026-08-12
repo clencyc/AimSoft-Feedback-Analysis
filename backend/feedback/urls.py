@@ -20,5 +20,9 @@ urlpatterns = [
     path('admin/form-questions/<int:question_id>/', views.admin_update_delete_form_question, name='admin-form-question-detail'),
     # Manager dashboard summary endpoint
     path('admin/organizations/<int:org_id>/summary/', views.admin_organization_summary, name='admin-organization-summary'),
+
+    # Support dashboard endpoints
+    path('feedback/list/', views.feedback_list, name='feedback-list'),
+    path('feedback/<int:feedback_id>/acknowledge/', views.acknowledge_feedback, name='feedback-ack'),
 ]
 
