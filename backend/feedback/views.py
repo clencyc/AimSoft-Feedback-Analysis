@@ -1,5 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.db.models import Avg
+from datetime import timedelta
 from rest_framework import permissions, status
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.response import Response
@@ -287,3 +289,173 @@ def admin_reorder_form_questions(request, org_id):
             q.order = idx
             q.save()
     return Response({'detail': 'Reordered'})
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated, IsSuperAdmin])
+def admin_organization_summary(request, org_id):
+    """Return aggregated summary stats for manager dashboard.
+
+    Fields: total_submissions, submissions_last_7_days, avg_csat, avg_nps,
+    dimension_averages (from dimension_ratings), recent_feedback (last 5 simple records),
+    an 8-week trend and a basic sentiment breakdown.
+
+    This endpoint is tolerant of legacy seeded data that used `satisfaction_level` and
+    `recommend_others` instead of `csat_score` / `nps_score`.
+    """
+    org = get_object_or_404(Organization, id=org_id)
+    qs = org.feedbacks.all()
+    total = qs.count()
+    submissions_last_7 = qs.filter(created_at__gte=timezone.now() - timedelta(days=7)).count()
+
+    # Prefer the new standardized fields, but fall back to legacy numeric fields if empty
+    avg_csat = qs.aggregate(avg_csat=Avg('csat_score'))['avg_csat']
+    if avg_csat is None:
+        avg_csat = qs.aggregate(avg_csat=Avg('satisfaction_level'))['avg_csat']
+    avg_nps = qs.aggregate(avg_nps=Avg('nps_score'))['avg_nps']
+    if avg_nps is None:
+        avg_nps = qs.aggregate(avg_nps=Avg('recommend_others'))['avg_nps']
+
+    # Aggregate simple dimension_ratings (dict field) averages in Python
+    dim_sums = {}
+    dim_counts = {}
+    for dr in qs.values_list('dimension_ratings', flat=True):
+        if not dr:
+            continue
+        if isinstance(dr, dict):
+            for k, v in dr.items():
+                try:
+                    val = int(v)
+                except Exception:
+                    continue
+                dim_sums[k] = dim_sums.get(k, 0) + val
+                dim_counts[k] = dim_counts.get(k, 0) + 1
+
+    dimension_averages = {k: round(dim_sums[k] / dim_counts[k], 2) for k in dim_sums.keys()} if dim_sums else {}
+
+    # Recent feedback
+    recent_qs = qs.order_by('-created_at')[:5]
+    recent_feedback = [
+        {
+            'id': f.form_id,
+            'csat_score': f.csat_score or f.satisfaction_level,
+            'nps_score': f.nps_score or f.recommend_others,
+            'like_most': f.like_most,
+            'improve': f.improve,
+            'additional_comments': f.additional_comments,
+            'created_at': f.created_at,
+        }
+        for f in recent_qs
+    ]
+
+    # Build a simple 8-week trend (average CSAT per week using fallback)
+    trend = []
+    now = timezone.now()
+    for w in range(7, -1, -1):
+        start = (now - timedelta(days=(w + 1) * 7)).date()
+        end = (now - timedelta(days=w * 7)).date()
+        week_qs = qs.filter(created_at__date__gte=start, created_at__date__lt=end)
+        # compute avg using same fallback logic
+        a = week_qs.aggregate(a=Avg('csat_score'))['a']
+        if a is None:
+            a = week_qs.aggregate(a=Avg('satisfaction_level'))['a']
+        trend.append({'week': start.isoformat(), 'avg_csat': round(a, 2) if a is not None else None, 'count': week_qs.count()})
+
+    # Very small heuristic sentiment breakdown over textual fields
+    positive_words = {'good', 'great', 'love', 'excellent', 'awesome', 'satisfied', 'recommend', 'easy'}
+    negative_words = {'bad', 'poor', 'slow', 'terrible', 'disappointed', 'hate', 'late', 'delay'}
+    sentiment_counts = {'positive': 0, 'negative': 0, 'neutral': 0}
+
+    for txt in qs.values_list('additional_comments', flat=True):
+        if not txt:
+            continue
+        text = str(txt).lower()
+        pos = any(w in text for w in positive_words)
+        neg = any(w in text for w in negative_words)
+        if pos and not neg:
+            sentiment_counts['positive'] += 1
+        elif neg and not pos:
+            sentiment_counts['negative'] += 1
+        else:
+            sentiment_counts['neutral'] += 1
+
+    data = {
+        'total_submissions': total,
+        'submissions_last_7_days': submissions_last_7,
+        'avg_csat': round(avg_csat, 2) if avg_csat is not None else None,
+        'avg_nps': round(avg_nps, 2) if avg_nps is not None else None,
+        'dimension_averages': dimension_averages,
+        'recent_feedback': recent_feedback,
+        'trend': trend,
+        'sentiment': sentiment_counts,
+    }
+    return Response(data)
+
+
+# Support/team oriented endpoints (lightweight)
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def feedback_list(request):
+    """Return a list of recent feedback items for support teams.
+
+    Supports optional query params: organization_id, sentiment, channel (ignored for now).
+    This is intentionally permissive (any authenticated user can read) — UI-level role guards
+    restrict who can see the support page.
+    """
+    org_id = request.query_params.get('organization_id')
+    sentiment_filter = request.query_params.get('sentiment')
+
+    qs = Customer_feedback.objects.all().order_by('-created_at')
+    if org_id:
+        try:
+            qs = qs.filter(organization_id=int(org_id))
+        except Exception:
+            pass
+
+    # Build simple sentiment from textual fields
+    positive_words = {'good', 'great', 'love', 'excellent', 'awesome', 'satisfied', 'recommend', 'easy'}
+    negative_words = {'bad', 'poor', 'slow', 'terrible', 'disappointed', 'hate', 'late', 'delay'}
+
+    items = []
+    for f in qs[:200]:
+        text = ' '.join(filter(None, [f.like_most or '', f.improve or '', f.additional_comments or '']))
+        t = text.lower()
+        pos = any(w in t for w in positive_words)
+        neg = any(w in t for w in negative_words)
+        if pos and not neg:
+            sent = 'Positive'
+        elif neg and not pos:
+            sent = 'Negative'
+        else:
+            sent = 'Neutral'
+        if sentiment_filter and sentiment_filter != 'All' and sentiment_filter != sent:
+            continue
+        items.append({
+            'id': f.form_id,
+            'client': f.organization.name if f.organization else None,
+            'channel': 'Web survey',
+            'module': f.product_service or 'General',
+            'sentiment': sent,
+            'text': (f.additional_comments or f.like_most or f.improve)[:400],
+            'received_at': f.created_at.isoformat() if f.created_at else None,
+            'status': 'Open',
+        })
+
+    return Response(items)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def acknowledge_feedback(request, feedback_id):
+    """Lightweight acknowledge endpoint. Returns success but doesn't persist in DB.
+
+    For now the dashboard will still use local session ack if backend can't persist.
+    """
+    # verify existence
+    try:
+        Customer_feedback.objects.get(form_id=feedback_id)
+    except Customer_feedback.DoesNotExist:
+        return Response({'detail': 'Not found'}, status=404)
+
+    return Response({'detail': 'Acknowledged (ephemeral)'}, status=200)
+
