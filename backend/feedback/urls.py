@@ -18,5 +18,7 @@ urlpatterns = [
     path('admin/organizations/<int:org_id>/form-questions/', views.admin_list_create_form_questions, name='admin-org-form-questions'),
     path('admin/organizations/<int:org_id>/form-questions/reorder/', views.admin_reorder_form_questions, name='admin-org-form-questions-reorder'),
     path('admin/form-questions/<int:question_id>/', views.admin_update_delete_form_question, name='admin-form-question-detail'),
+    # Manager dashboard summary endpoint
+    path('admin/organizations/<int:org_id>/summary/', views.admin_organization_summary, name='admin-organization-summary'),
 ]
 

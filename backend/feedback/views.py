@@ -1,5 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.db.models import Avg
+from datetime import timedelta
 from rest_framework import permissions, status
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.response import Response
@@ -287,3 +289,59 @@ def admin_reorder_form_questions(request, org_id):
             q.order = idx
             q.save()
     return Response({'detail': 'Reordered'})
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated, IsSuperAdmin])
+def admin_organization_summary(request, org_id):
+    """Return aggregated summary stats for manager dashboard.
+
+    Fields: total_submissions, submissions_last_7_days, avg_csat, avg_nps,
+    dimension_averages (from dimension_ratings), recent_feedback (last 5 simple records).
+    """
+    org = get_object_or_404(Organization, id=org_id)
+    qs = org.feedbacks.all()
+    total = qs.count()
+    submissions_last_7 = qs.filter(created_at__gte=timezone.now() - timedelta(days=7)).count()
+    avg_csat = qs.aggregate(avg_csat=Avg('csat_score'))['avg_csat']
+    avg_nps = qs.aggregate(avg_nps=Avg('nps_score'))['avg_nps']
+
+    # Aggregate simple dimension_ratings (dict field) averages in Python
+    dim_sums = {}
+    dim_counts = {}
+    for dr in qs.values_list('dimension_ratings', flat=True):
+        if not dr:
+            continue
+        if isinstance(dr, dict):
+            for k, v in dr.items():
+                try:
+                    val = int(v)
+                except Exception:
+                    continue
+                dim_sums[k] = dim_sums.get(k, 0) + val
+                dim_counts[k] = dim_counts.get(k, 0) + 1
+
+    dimension_averages = {k: round(dim_sums[k] / dim_counts[k], 2) for k in dim_sums.keys()} if dim_sums else {}
+
+    recent_qs = qs.order_by('-created_at')[:5]
+    recent_feedback = [
+        {
+            'id': f.form_id,
+            'csat_score': f.csat_score,
+            'nps_score': f.nps_score,
+            'like_most': f.like_most,
+            'improve': f.improve,
+            'created_at': f.created_at,
+        }
+        for f in recent_qs
+    ]
+
+    data = {
+        'total_submissions': total,
+        'submissions_last_7_days': submissions_last_7,
+        'avg_csat': round(avg_csat, 2) if avg_csat is not None else None,
+        'avg_nps': round(avg_nps, 2) if avg_nps is not None else None,
+        'dimension_averages': dimension_averages,
+        'recent_feedback': recent_feedback,
+    }
+    return Response(data)
