@@ -390,3 +390,72 @@ def admin_organization_summary(request, org_id):
         'sentiment': sentiment_counts,
     }
     return Response(data)
+
+
+# Support/team oriented endpoints (lightweight)
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def feedback_list(request):
+    """Return a list of recent feedback items for support teams.
+
+    Supports optional query params: organization_id, sentiment, channel (ignored for now).
+    This is intentionally permissive (any authenticated user can read) — UI-level role guards
+    restrict who can see the support page.
+    """
+    org_id = request.query_params.get('organization_id')
+    sentiment_filter = request.query_params.get('sentiment')
+
+    qs = Customer_feedback.objects.all().order_by('-created_at')
+    if org_id:
+        try:
+            qs = qs.filter(organization_id=int(org_id))
+        except Exception:
+            pass
+
+    # Build simple sentiment from textual fields
+    positive_words = {'good', 'great', 'love', 'excellent', 'awesome', 'satisfied', 'recommend', 'easy'}
+    negative_words = {'bad', 'poor', 'slow', 'terrible', 'disappointed', 'hate', 'late', 'delay'}
+
+    items = []
+    for f in qs[:200]:
+        text = ' '.join(filter(None, [f.like_most or '', f.improve or '', f.additional_comments or '']))
+        t = text.lower()
+        pos = any(w in t for w in positive_words)
+        neg = any(w in t for w in negative_words)
+        if pos and not neg:
+            sent = 'Positive'
+        elif neg and not pos:
+            sent = 'Negative'
+        else:
+            sent = 'Neutral'
+        if sentiment_filter and sentiment_filter != 'All' and sentiment_filter != sent:
+            continue
+        items.append({
+            'id': f.form_id,
+            'client': f.organization.name if f.organization else None,
+            'channel': 'Web survey',
+            'module': f.product_service or 'General',
+            'sentiment': sent,
+            'text': (f.additional_comments or f.like_most or f.improve)[:400],
+            'received_at': f.created_at.isoformat() if f.created_at else None,
+            'status': 'Open',
+        })
+
+    return Response(items)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def acknowledge_feedback(request, feedback_id):
+    """Lightweight acknowledge endpoint. Returns success but doesn't persist in DB.
+
+    For now the dashboard will still use local session ack if backend can't persist.
+    """
+    # verify existence
+    try:
+        Customer_feedback.objects.get(form_id=feedback_id)
+    except Customer_feedback.DoesNotExist:
+        return Response({'detail': 'Not found'}, status=404)
+
+    return Response({'detail': 'Acknowledged (ephemeral)'}, status=200)
+
