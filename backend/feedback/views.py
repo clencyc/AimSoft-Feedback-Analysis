@@ -297,14 +297,24 @@ def admin_organization_summary(request, org_id):
     """Return aggregated summary stats for manager dashboard.
 
     Fields: total_submissions, submissions_last_7_days, avg_csat, avg_nps,
-    dimension_averages (from dimension_ratings), recent_feedback (last 5 simple records).
+    dimension_averages (from dimension_ratings), recent_feedback (last 5 simple records),
+    an 8-week trend and a basic sentiment breakdown.
+
+    This endpoint is tolerant of legacy seeded data that used `satisfaction_level` and
+    `recommend_others` instead of `csat_score` / `nps_score`.
     """
     org = get_object_or_404(Organization, id=org_id)
     qs = org.feedbacks.all()
     total = qs.count()
     submissions_last_7 = qs.filter(created_at__gte=timezone.now() - timedelta(days=7)).count()
+
+    # Prefer the new standardized fields, but fall back to legacy numeric fields if empty
     avg_csat = qs.aggregate(avg_csat=Avg('csat_score'))['avg_csat']
+    if avg_csat is None:
+        avg_csat = qs.aggregate(avg_csat=Avg('satisfaction_level'))['avg_csat']
     avg_nps = qs.aggregate(avg_nps=Avg('nps_score'))['avg_nps']
+    if avg_nps is None:
+        avg_nps = qs.aggregate(avg_nps=Avg('recommend_others'))['avg_nps']
 
     # Aggregate simple dimension_ratings (dict field) averages in Python
     dim_sums = {}
@@ -323,18 +333,51 @@ def admin_organization_summary(request, org_id):
 
     dimension_averages = {k: round(dim_sums[k] / dim_counts[k], 2) for k in dim_sums.keys()} if dim_sums else {}
 
+    # Recent feedback
     recent_qs = qs.order_by('-created_at')[:5]
     recent_feedback = [
         {
             'id': f.form_id,
-            'csat_score': f.csat_score,
-            'nps_score': f.nps_score,
+            'csat_score': f.csat_score or f.satisfaction_level,
+            'nps_score': f.nps_score or f.recommend_others,
             'like_most': f.like_most,
             'improve': f.improve,
+            'additional_comments': f.additional_comments,
             'created_at': f.created_at,
         }
         for f in recent_qs
     ]
+
+    # Build a simple 8-week trend (average CSAT per week using fallback)
+    trend = []
+    now = timezone.now()
+    for w in range(7, -1, -1):
+        start = (now - timedelta(days=(w + 1) * 7)).date()
+        end = (now - timedelta(days=w * 7)).date()
+        week_qs = qs.filter(created_at__date__gte=start, created_at__date__lt=end)
+        # compute avg using same fallback logic
+        a = week_qs.aggregate(a=Avg('csat_score'))['a']
+        if a is None:
+            a = week_qs.aggregate(a=Avg('satisfaction_level'))['a']
+        trend.append({'week': start.isoformat(), 'avg_csat': round(a, 2) if a is not None else None, 'count': week_qs.count()})
+
+    # Very small heuristic sentiment breakdown over textual fields
+    positive_words = {'good', 'great', 'love', 'excellent', 'awesome', 'satisfied', 'recommend', 'easy'}
+    negative_words = {'bad', 'poor', 'slow', 'terrible', 'disappointed', 'hate', 'late', 'delay'}
+    sentiment_counts = {'positive': 0, 'negative': 0, 'neutral': 0}
+
+    for txt in qs.values_list('additional_comments', flat=True):
+        if not txt:
+            continue
+        text = str(txt).lower()
+        pos = any(w in text for w in positive_words)
+        neg = any(w in text for w in negative_words)
+        if pos and not neg:
+            sentiment_counts['positive'] += 1
+        elif neg and not pos:
+            sentiment_counts['negative'] += 1
+        else:
+            sentiment_counts['neutral'] += 1
 
     data = {
         'total_submissions': total,
@@ -343,5 +386,7 @@ def admin_organization_summary(request, org_id):
         'avg_nps': round(avg_nps, 2) if avg_nps is not None else None,
         'dimension_averages': dimension_averages,
         'recent_feedback': recent_feedback,
+        'trend': trend,
+        'sentiment': sentiment_counts,
     }
     return Response(data)
