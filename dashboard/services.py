@@ -53,6 +53,11 @@ def list_organizations():
 	return get_json("api/admin/organizations/", use_auth=True)
 
 
+def get_summary(org_id: int):
+	"""Admin: fetch aggregated summary for the given organization."""
+	return get_json(f"api/admin/organizations/{org_id}/summary/", use_auth=True)
+
+
 # Form builder helpers (admin/dashboard)
 def list_form_questions(org_id: int):
 	return get_json(f"api/admin/organizations/{org_id}/form-questions/", use_auth=True)

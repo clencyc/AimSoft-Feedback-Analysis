@@ -27,61 +27,10 @@ QUESTION_TYPE_LABELS = {
 st.divider()
 st.header("Feedback Form Builder")
 
-
-def load_summary():
-	"""Pulls from the real summary endpoint if it exists. Returns (data, True) on success,
-	or (None, False) if the backend isn't reachable. This avoids showing fabricated sample
-	data in the management dashboard."""
-	try:
-		resp = services.get_json("feedback/summary/")
-		if resp.ok:
-			return resp.json(), True
-	except Exception:
-		pass
-
-	# Do not return sample/dummy data — signal missing live data
-	return None, False
-
-
-data, is_live = load_summary()
-
-if not data:
-	st.warning("Live summary not available — connect the backend 'feedback/summary/' endpoint to view metrics.")
-	st.info("No metrics to display until backend summary is reachable.")
-	st.stop()
-
-# if not is_live:
-# 	st.caption("Sample data shown — connect `feedback/summary/` for live figures.")
-
-col1, col2, col3 = st.columns(3)
-col1.metric("Avg. Satisfaction", f"{data['avg_satisfaction']} / 5")
-col2.metric("NPS Score", data["nps"])
-col3.metric("Total Responses", data["total_responses"])
-
-st.write("")
-left, right = st.columns([1.4, 1])
-
-with left:
-	st.subheader("Satisfaction trend (last 8 weeks)")
-	trend_df = pd.DataFrame(data["trend"]).set_index("week")
-	st.line_chart(trend_df)
-
-with right:
-	st.subheader("Sentiment breakdown")
-	sentiment_df = pd.DataFrame(
-		{"count": data["sentiment"].values()}, index=data["sentiment"].keys()
-	)
-	st.bar_chart(sentiment_df)
-
-
-# --- Feedback links admin UI ---
-st.divider()
-st.header("Feedback Links (Super Admin)")
-
-# Load organizations
+# Load organizations early so user can choose which org to view/manage
 orgs_resp = services.list_organizations()
-org_options = []
-if orgs_resp is not None and orgs_resp.ok:
+org_options = {}
+if orgs_resp is not None and getattr(orgs_resp, 'ok', False):
 	orgs = orgs_resp.json()
 	org_options = {o['name']: o['id'] for o in orgs}
 else:
@@ -94,6 +43,50 @@ if org_options:
 		selected_org_id = org_options[selected_name]
 else:
 	st.info("No organizations available to manage.")
+
+# Show summary metrics for the selected org
+if selected_org_id:
+	try:
+		resp = services.get_summary(selected_org_id)
+		if resp is None or not getattr(resp, 'ok', False):
+			st.warning("Live summary not available — ensure backend is reachable and you are authorized to view this organization's summary.")
+		else:
+			data = resp.json()
+			col1, col2, col3 = st.columns(3)
+			col1.metric("Avg. Satisfaction", f"{data.get('avg_csat') or '—'}")
+			col2.metric("NPS Score", data.get("avg_nps") or '—')
+			col3.metric("Total Responses", data.get("total_submissions") or 0)
+
+			st.write("")
+			left, right = st.columns([1.4, 1])
+
+			with left:
+				st.subheader("Satisfaction trend (last 8 weeks)")
+				# trend may be absent for now — guard against missing keys
+				if data.get("trend"):
+					trend_df = pd.DataFrame(data["trend"]).set_index("week")
+					st.line_chart(trend_df)
+				else:
+					st.info("No trend data available yet.")
+
+			with right:
+				st.subheader("Sentiment breakdown")
+				if data.get("sentiment"):
+					sentiment_df = pd.DataFrame({"count": data["sentiment"].values()}, index=data["sentiment"].keys())
+					st.bar_chart(sentiment_df)
+				else:
+					st.info("No sentiment data available yet.")
+
+	except Exception:
+		st.warning("Error fetching summary — check backend and permissions.")
+else:
+	st.info("Select an organization above to view its summary and manage links.")
+
+
+# --- Feedback links admin UI ---
+st.divider()
+st.header("Feedback Links (Super Admin)")
+
 
 with st.expander("Create new shareable feedback link"):
 	label = st.text_input("Label (optional)")
