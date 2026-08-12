@@ -8,7 +8,10 @@ import services
 
 require_role = services.require_role
 
-require_role("support")
+# The project uses 'Secondary Stakeholder' as the DB role for support staff.
+# Accept both the literal label and common synonyms so access checks match the
+# seeded users: e.g. 'Secondary Stakeholder', 'Support Team', 'support'.
+require_role("Secondary Stakeholder", "Support Team", "support", "supportteam")
 
 st.title("Support Team Dashboard")
 st.caption(f"Welcome, {st.session_state.current_user.get('username', '')}")
